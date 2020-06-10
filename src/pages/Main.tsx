@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Main = ({ urlEntry, urlList, inputErr, onSubmitHandler, onInputChangeHandler, refreshHandler }: MainProps) => {
+const Main = ({ urlEntry, urlList, inputErr, onSubmitHandler, onInputChangeHandler, onMoreHandler, refreshHandler }: MainProps) => {
   const classes = useStyles();
 
   return (
@@ -49,11 +49,12 @@ const Main = ({ urlEntry, urlList, inputErr, onSubmitHandler, onInputChangeHandl
         </Grid>
         <Grid item xs={12}>
           <Typography variant="h5" component="p">Saved Entries</Typography>
-          {urlList.map((u: UrlEntry) => <Typography key={u.id} variant="body1">
+          {urlList.items.map((u: UrlEntry) => <Typography key={u.id} variant="body1">
             <Link href={u.url}>
               {appRoot}/{u.id} => {u.url}
             </Link>
           </Typography>)}
+          {!!urlList.lastKey ? <Button color="primary" onClick={onMoreHandler}>More</Button> : undefined}
           <Button color="secondary" onClick={refreshHandler}>Refresh List</Button>
         </Grid>
       </Grid>

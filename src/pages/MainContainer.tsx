@@ -1,12 +1,12 @@
 import React, { SyntheticEvent, ChangeEvent, useState, useEffect } from 'react';
 import Main from './Main';
-import { UrlEntry, ErrorRes } from '../models';
+import { UrlEntry, ErrorRes, UrlList } from '../models';
 import { apiRoot } from '../env.json';
 
 const MainContainer = () => {
   const [inputVal, setInputVal] = useState("");
   const [urlEntry, setUrlEntry] = useState(undefined as unknown as UrlEntry);
-  const [urlList, setUrlList] = useState([]);
+  const [urlList, setUrlList] = useState({ items: [], numItems: 0 } as UrlList);
   const [isFresh, setIsFresh] = useState(false);
   const [errMsg, setErrMsg] = useState(undefined as unknown as string);
 
@@ -14,8 +14,8 @@ const MainContainer = () => {
     const fetchList = async () => {
       if (isFresh) { return; }
       const res: Response = await fetch(`${apiRoot}/entries`);
-      const data: any = await res.json();
-      setUrlList(data['items']);
+      const data: UrlList = await res.json();
+      setUrlList(data);
       setIsFresh(true);
     }
     fetchList();
@@ -42,6 +42,14 @@ const MainContainer = () => {
     setInputVal(event.target.value);
   }
 
+  const onMoreHandler = async (event: SyntheticEvent) => {
+    event.preventDefault();
+    const res: Response = await fetch(`${apiRoot}/entries?lastKey=${urlList.lastKey}`);
+    const data: UrlList = await res.json();
+    const newList: Array<UrlEntry> = urlList.items.concat(data.items)
+    setUrlList({ numItems: newList.length, items: newList, lastKey: data.lastKey })
+  }
+
   const refreshHandler = (event: SyntheticEvent) => {
     event.preventDefault();
     setIsFresh(false);
@@ -54,6 +62,7 @@ const MainContainer = () => {
       inputErr={errMsg}
       onSubmitHandler={onSubmitHandler}
       onInputChangeHandler={onInputChangeHandler}
+      onMoreHandler={onMoreHandler}
       refreshHandler={refreshHandler}
     />
   );
